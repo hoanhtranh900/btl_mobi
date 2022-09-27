@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Instagram Clone</string>
+    <string name="notify_fragment">notify Fragment</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="setting">Setting</string>
+    <string name="log_out">Log Out</string>
+</resources>
