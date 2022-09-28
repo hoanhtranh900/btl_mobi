@@ -1,19 +1,29 @@
 package com.mrash.instagramclone.Model;
 
+import java.util.List;
+
 public class Post {
     private String description;
-    private String imageurl;
+    private List<String> postImageUrls;
     private String postid;
     private String publisher;
 
     public Post() {
     }
 
-    public Post(String description, String imageurl, String postid, String publisher) {
+    public Post(String description, List<String> postImageUrls, String postid, String publisher) {
         this.description = description;
-        this.imageurl = imageurl;
+        this.postImageUrls = postImageUrls;
         this.postid = postid;
         this.publisher = publisher;
+    }
+
+    public List<String> getPostImageUrls() {
+        return postImageUrls;
+    }
+
+    public void setPostImageUrls(List<String> postImageUrls) {
+        this.postImageUrls = postImageUrls;
     }
 
     public String getDescription() {
@@ -24,13 +34,7 @@ public class Post {
         this.description = description;
     }
 
-    public String getImageurl() {
-        return imageurl;
-    }
 
-    public void setImageurl(String imageurl) {
-        this.imageurl = imageurl;
-    }
 
     public String getPostid() {
         return postid;

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.mrash.instagramclone.utils.SharedPrefManager;
 
 public class StartActivity extends AppCompatActivity {
 
@@ -19,7 +20,7 @@ public class StartActivity extends AppCompatActivity {
     private LinearLayout linearLayout;
     private Button login;
     private Button register;
-
+    private SharedPrefManager sharedPrefManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,16 @@ public class StartActivity extends AppCompatActivity {
         setAnimation();
         setButtons();
 
+        checkLogin();
+
+    }
+    private void checkLogin() {
+        if (sharedPrefManager.getSPSudahLogin()) {
+            Intent intent = new Intent(StartActivity.this, MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        }
     }
 
     // Init View Method
@@ -39,6 +50,8 @@ public class StartActivity extends AppCompatActivity {
         register = findViewById(R.id.register);
         login = findViewById(R.id.login);
         iconImage.setVisibility(View.VISIBLE);
+        sharedPrefManager = new SharedPrefManager(this);
+
     }
 
     // This method set Animation

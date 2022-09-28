@@ -57,7 +57,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         // get post from post array on the base of position
         Post post = mPosts.get(position);
         //picasso is used to process/load image
-        Picasso.get().load(post.getImageurl()).into(holder.postImage);
+        Picasso.get().load(post.getPostImageUrls().get(0)).into(holder.postImage);
 
         holder.description.setText(post.getDescription());
 

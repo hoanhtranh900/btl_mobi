@@ -14,6 +14,7 @@ import com.mrash.instagramclone.Fragments.HomeFragment;
 import com.mrash.instagramclone.Fragments.NotificationFragment;
 import com.mrash.instagramclone.Fragments.ProfileFragment;
 import com.mrash.instagramclone.Fragments.SearchFragment;
+import com.mrash.instagramclone.utils.SharedPrefManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,7 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         setBottomNavigationView();
-        // by default home fragment will start
+        //check if user is logged in move tp home activity
+
+        //Mặc định khi kich hoạt activity sẽ hiển thị fragment home
         setHomeAfterLogin();
     }
 
@@ -67,10 +70,9 @@ public class MainActivity extends AppCompatActivity {
                         break;
 
                 }
-                //will set and show that fragment on main activity and replace that container
-                //  layout with that clicked menu base fragment
                 if(selectorFragment != null)
                 {
+                    //Thay thế fragment hiện tại bằng fragment mới, lưu ý dùng replace sẽ xoá luôn fragment cũ ( onPause -> onStop -> onDestroy)
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,selectorFragment).commit();
                 }
                 return true;

@@ -1,5 +1,7 @@
 package com.mrash.instagramclone.Fragments;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -7,10 +9,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -18,13 +22,27 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.mrash.instagramclone.Adapter.PostAdapter;
+import com.mrash.instagramclone.LoginActivity;
+import com.mrash.instagramclone.MainActivity;
 import com.mrash.instagramclone.Model.Post;
 import com.mrash.instagramclone.R;
+import com.mrash.instagramclone.network.ApiClient;
+import com.mrash.instagramclone.network.ApiInterface;
+import com.mrash.instagramclone.utils.SharedPrefManager;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
+//thứ tự: onCreateView, onStart, onResume
+//adapter: đưa dữ liệu vào recyclerview
 public class HomeFragment extends Fragment {
     private static final String TAG = "HomeFragment";
 
@@ -32,6 +50,10 @@ public class HomeFragment extends Fragment {
     private PostAdapter postAdapter;
     private List<Post> postList;
     private List<String> followingList;
+    private int page = 0;
+    private int size = 10;
+    private ApiInterface apiInterface;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,44 +77,92 @@ public class HomeFragment extends Fragment {
 
         //setting linear layout of post on recycler view
         recyclerViewPosts.setLayoutManager(linearLayoutManager);
+        apiInterface = ApiClient.getClient().create(ApiInterface.class);
 
         //setting posts on adapter
-        postAdapter = new PostAdapter(getContext(),postList);
+        postAdapter = new PostAdapter(getContext(), postList);
         recyclerViewPosts.setAdapter(postAdapter);
 
         //this will check for those following peoples
-        checkFollowingUser();
+        getPost();
         return view;
     }
 
     /**
      * Check if User is following Someone
      */
-    private void checkFollowingUser() {
-        Log.d(TAG, "checkFollowingUser: Called");
-//        FirebaseDatabase.getInstance().getReference().child("Follow").child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-//                .child("following").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull  DataSnapshot snapshot) {
-//                Log.d(TAG, "onDataChange: Getting Following List");
-//                followingList.clear();
-//                for(DataSnapshot dataSnapshot:snapshot.getChildren())
-//                {
-//                    Log.d(TAG, "onDataChange: getting following list");
-//                    followingList.add(dataSnapshot.getKey());
-//                }
-//                Log.d(TAG, "onDataChange: going to read post for followings");
-//                readPosts(); // get Following people post on Home Activity
-//
-//            }
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.d(TAG, "onCancelled: Started");
-//
-//            }
-//        });
+    private void getPost() {
+        Log.d(TAG, "getListPost");
+        /*
+        * params: {
+                        search: JSON.stringify(apiParam),
+                        page: body.page || 0,
+                        size: body.size || 10,
+                        sort: 'modifiedDate,desc',
+                    }
+        * */
+        Map<String, Object> paramObject = new ArrayMap<>();
+        paramObject.put("page", page);
+        paramObject.put("size", size);
+        paramObject.put("sort", "modifiedDate,desc");
+
+        Map<String, Object> searchParam = new ArrayMap<>();
+        searchParam.put("fullName", "");
+
+
+        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
+        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                Log.d(TAG, "onResponse: " + response.body());
+                if (response.isSuccessful()) {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        if (jsonObject.getString("code").equals("200")) {
+                            JSONObject data = jsonObject.getJSONObject("data");
+                            //get list from content
+                            JSONArray content = data.getJSONArray("content");
+                            for (int i = 0; i < content.length(); i++) {
+                                JSONObject post = content.getJSONObject(i);
+                                Post post1 = new Post();
+                                post1.setPostid(post.getString("id"));
+                                JSONArray images = post.getJSONArray("postImageUrls");
+                                List<String> imageList = new ArrayList<>();
+                                for (int j = 0; j < images.length(); j++) {
+                                    imageList.add(images.getString(j));
+                                }
+                                post1.setPostImageUrls(imageList);
+                                post1.setDescription(post.getString("description"));
+                                post1.setPublisher(post.getString("creatorName"));
+//                                post1.setPublisherId(post.getString("creatorId"));
+                                postList.add(post1);
+                            }
+
+                        } else {
+                            Toast.makeText(getContext(), "Load Data faild", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                postAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.d(TAG, "onFailure: " + t.getMessage());
+            }
+        });
+
     }
 
+    String encodeURIComponent(Map<String, Object> map) {
+        //input: {"fullName":""}
+        //output: %7B%22fullName%22%3A%22%22%7D
+
+        return Uri.encode((new JSONObject(map)).toString()) ;
+    }
     /**
      * Checking and Reading Follow people post and set it on Home Screen using post Adapter
      */
@@ -123,4 +193,36 @@ public class HomeFragment extends Fragment {
 //            }
 //        });
     }
+
+    //log onresume, onpause, onstart, onstop, ondestroy
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Called");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: Called");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: Called");
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop: Called");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: Called");
+    }
+
 }
