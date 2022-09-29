@@ -25,7 +25,6 @@ public class TokenAuthenticator implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request original = chain.request();
-        Response response = chain.proceed(original);
         String authToken = "Bearer " + sharedPrefManager.getSPToken();
         Request mainRequest = chain.request();
         Request request = original.newBuilder()

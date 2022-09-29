@@ -45,4 +45,8 @@ public class SharedPrefManager {
     }
 
 
+    public void clear() {
+        spEditor.clear();
+        spEditor.commit();
+    }
 }

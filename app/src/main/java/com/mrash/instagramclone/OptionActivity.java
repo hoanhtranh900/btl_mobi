@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.mrash.instagramclone.utils.SharedPrefManager;
 
 
 public class OptionActivity extends AppCompatActivity {
@@ -19,6 +20,7 @@ public class OptionActivity extends AppCompatActivity {
     //activio drop down menu ở màn profile
     private TextView setting;
     private TextView logout;
+    SharedPrefManager sharedPrefManager;
     @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class OptionActivity extends AppCompatActivity {
         logout = findViewById(R.id.logout);
         // this setting hasn't been setup yet
         setting = findViewById(R.id.settings);
+        sharedPrefManager = new SharedPrefManager(this);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -50,7 +53,11 @@ public class OptionActivity extends AppCompatActivity {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
+//                FirebaseAuth.getInstance().signOut();
+                //delete all the data from shared preference
+                sharedPrefManager.clear();
+
+
                 startActivity(new Intent(OptionActivity.this,StartActivity.class)
                         .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
                 finish();

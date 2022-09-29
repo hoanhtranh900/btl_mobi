@@ -44,19 +44,7 @@
         android:padding="12dp"
         android:inputType="textPersonName"
         />
-    <EditText
-        android:id="@+id/email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_background"
-        android:layout_marginTop="15dp"
-        android:hint="Email"
-        android:textColorHint="@color/Gram"
-        android:fontFamily="serif-monospace"
-        android:textColor="@color/Gram"
-        android:padding="12dp"
-        android:inputType="textEmailAddress"
-        />
+
 
     <EditText
         android:id="@+id/password"

@@ -32,7 +32,10 @@ public interface ApiInterface {
             @Query("size") int size,
             @Query("sort") String sort
     );
-    
+
+    //đăng ký
+    @POST("public/v1/sso/register")
+    Call<ResponseBody> postRegister(@Body RequestBody body);
 
     @GET("api/v1/post/getPage")
     Call<ResponseBody> getFollower(@Query("search") String search);
