@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,11 +20,18 @@ import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.mrash.instagramclone.Fragments.PostDetailFragment;
 import com.mrash.instagramclone.Model.Post;
-import com.mrash.instagramclone.Model.User;
 import com.mrash.instagramclone.R;
+import com.mrash.instagramclone.network.ApiClient;
+import com.mrash.instagramclone.network.ApiInterface;
+import com.mrash.instagramclone.utils.H;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONObject;
+
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
 
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     private static final String TAG = "PostAdapter";
@@ -38,7 +44,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     public PostAdapter(Context mContext, List<Post> mPosts) {
         this.mContext = mContext;
         this.mPosts = mPosts;
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
     }
 
     @NonNull
@@ -57,38 +62,58 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         // get post from post array on the base of position
         Post post = mPosts.get(position);
         //picasso is used to process/load image
-        Picasso.get().load(post.getPostImageUrls().get(0)).into(holder.postImage);
+        if(H.isTrue(post.getPostImageUrl())) {
+            //rezise image max width of device
+            Picasso.get().load(post.getPostImageUrl()).into(holder.postImage);
+
+        }
+        else {
+            //hide image view if there is no image
+            holder.postImage.setVisibility(View.GONE);
+        }
 
         holder.description.setText(post.getDescription());
+        holder.fullName.setText(post.getUser().getFullName());
+        holder.auther.setText(post.getUser().getUsername());
+        holder.datecreate.setText(post.getDatecreate());
+        holder.noOfLikes.setText(post.getTotalLike()+" Likes");
+        if(H.isTrue(post.getUser().getAvatar())) {
+            Picasso.get().load(post.getUser().getAvatar()).into(holder.imgProfile);
+        }
+        else {
+            holder.imgProfile.setImageResource(R.drawable.ic_person);
+        }
+
+
 
         //getting data of post
-        FirebaseDatabase.getInstance().getReference().child("Users").child(post.getPublisher())
-                .addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Log.d(TAG, "onDataChange: Getting data from User and setting post");
-                User user = snapshot.getValue(User.class);
-
-                //I have set automatically image url to default so user have to update its pic first time from profile setting
-                if(user.getImageurl().equals("default"))
-                {
-                    holder.imgProfile.setImageResource(R.mipmap.ic_launcher);
-                }
-                else
-                    {
-                        //load the imageurl
-                        Picasso.get().load(user.getImageurl()).placeholder(R.mipmap.ic_launcher).into(holder.imgProfile);
-                    }
-                holder.username.setText(user.getUsername());
-                holder.auther.setText(user.getName());
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        FirebaseDatabase.getInstance().getReference().child("Users").child(post.getPublisher())
+//                .addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                Log.d(TAG, "onDataChange: Getting data from User and setting post");
+//                User user = snapshot.getValue(User.class);
+//
+//                //I have set automatically image url to default so user have to update its pic first time from profile setting
+//                if(user.getImageurl().equals("default"))
+//                {
+//                    holder.imgProfile.setImageResource(R.mipmap.ic_launcher);
+//                }
+//                else
+//                    {
+//                        //load the imageurl
+//                        Picasso.get().load(user.getImageurl()).placeholder(R.mipmap.ic_launcher).into(holder.imgProfile);
+//                    }
+//                holder.username.setText(user.getUsername());
+//                holder.auther.setText(user.getName());
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
         // function to check if post is liked or not
         isLiked(post.getPostid(), holder.like);
@@ -96,24 +121,50 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         //if user click on the like button then it will update the post which is liked and
         // add data of user who like it
         //and at the same time if user unlike the post then remove the value from firebase
+
+
         holder.like.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(holder.like.getTag().equals("like"))
-                {
-                    FirebaseDatabase.getInstance().getReference().child("Likes")
-                            .child(post.getPostid()).child(firebaseUser.getUid()).setValue(true);
+                ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+                Call<ResponseBody> response = apiInterface.postLike(Long.valueOf(post.getPostid()));
+                response.enqueue(new retrofit2.Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                        if(response.isSuccessful()) {
+                            Log.d(TAG, "onResponse: Post Liked");
+                            JSONObject jsonObject1 = null;
+                            try {
+                                jsonObject1 = new JSONObject(response.body().string());
+                                if (jsonObject1.getString("code").equals("200")) {
+                                    JSONObject data = jsonObject1.getJSONObject("data");
+                                    Long isDeleted = data.getLong("isDelete");
+                                    if(isDeleted == 1L ) {
+                                        //set like icon
+                                        holder.like.setImageResource(R.drawable.ic_like);
+                                    }
+                                    else {
+                                        //set unlike icon
+                                        holder.like.setImageResource(R.drawable.ic_liked);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
 
-                }else
-                {
-                    FirebaseDatabase.getInstance().getReference().child("Likes")
-                            .child(post.getPostid()).child(firebaseUser.getUid()).removeValue();
-                }
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+                    }
+                });
+
 
             }
         });
 
-        noOfLikes(post.getPostid(), holder.noOfLikes);
+
 
         //when user click on postImage of anyPost,open that post and replace that main Activity Container Layout
         // with post-detail fragment to show post
@@ -130,24 +181,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
 
     }//onbind end
 
-    //get noOfLikes of posts ony by one
-    private void noOfLikes(String postId,TextView text)
-    {
-        FirebaseDatabase.getInstance().getReference().child("Likes").child(postId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.getChildrenCount() > 0)
-                        text.setText(snapshot.getChildrenCount() + " Likes");
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-
-    }
 
     /**
      * Check if the post is liked or not already
@@ -158,28 +192,47 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     //if post is already liked by current user then clicking on liked button will unlike it and vice versa...
     private void isLiked(String poitId,ImageView imageView)
     {
-        FirebaseDatabase.getInstance().getReference().child("Likes").child(poitId)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull  DataSnapshot snapshot) {
-
-                        if(snapshot.child(firebaseUser.getUid()).exists())
-                        {
-                            imageView.setImageResource(R.drawable.ic_liked);
-                            imageView.setTag("liked");
+        Log.d(TAG, "isLiked: Checking if post is liked or not");
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        Call<ResponseBody> response = apiInterface.getLike(Long.valueOf(poitId));
+        response.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if(response.isSuccessful()) {
+                    Log.d(TAG, "onResponse: Post Liked");
+                    JSONObject jsonObject1 = null;
+                    try {
+                        jsonObject1 = new JSONObject(response.body().string());
+                        if (jsonObject1.getString("code").equals("200")) {
+//                            JSONObject data = jsonObject1.getJSONObject("data");
+//                            Long isLiked = data.getLong("isLiked");
+//                            if(isLiked == 1L ) {
+//                                //set like icon
+//                                imageView.setImageResource(R.drawable.ic_liked);
+//                            }
+//                            else {
+//                                //set unlike icon
+//                                imageView.setImageResource(R.drawable.ic_like);
+//                            }
+                            //check if have field data
+                            if(jsonObject1.has("data")) {
+                                imageView.setImageResource(R.drawable.ic_liked);
+                            }
+                            else {
+                                imageView.setImageResource(R.drawable.ic_like);
+                            }
                         }
-                        else
-                        {
-                            imageView.setImageResource(R.drawable.ic_like);
-                            imageView.setTag("like");
-                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                }
+            }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
 
-                    }
-                });
+            }
+        });
 
     }
 
@@ -197,11 +250,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         public ImageView comment;
         public ImageView save;
         public ImageView more;
+        public TextView fullName;
 
         public TextView username;
         public TextView noOfLikes;
         public TextView auther;
         public TextView noOfComments;
+        public TextView datecreate;
 
         SocialTextView description;
 
@@ -219,6 +274,8 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
             auther = itemView.findViewById(R.id.author);
             noOfComments = itemView.findViewById(R.id.no_of_comments);
             description = itemView.findViewById(R.id.description);
+            fullName = itemView.findViewById(R.id.full_name);
+            datecreate = itemView.findViewById(R.id.datecreate);
 
 
         }

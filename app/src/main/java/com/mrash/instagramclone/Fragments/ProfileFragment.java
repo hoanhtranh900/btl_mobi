@@ -309,10 +309,10 @@ public class ProfileFragment extends Fragment {
                         //User model
                         User user = snapshot.getValue(User.class);
                         //then get the detail of current user and set on profile
-                        Picasso.get().load(user.getImageurl()).into(imageProfile);
+                        Picasso.get().load(user.getAvatar()).into(imageProfile);
                         username.setText(user.getUsername());
-                        fullName.setText(user.getName());
-                        bio.setText(user.getBio());
+                        fullName.setText(user.getFullName());
+//                        bio.setText(user.getBio());
                     }
 
                     @Override

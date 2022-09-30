@@ -1,29 +1,39 @@
 package com.mrash.instagramclone.Model;
 
-import java.util.List;
-
 public class Post {
     private String description;
-    private List<String> postImageUrls;
+    private String postImageUrl;
     private String postid;
     private String publisher;
+    private User user;
+    private String datecreate;
+    private Long totalLike;
+
+    public Long getTotalLike() {
+        return totalLike;
+    }
+
+    public void setTotalLike(Long totalLike) {
+        this.totalLike = totalLike;
+    }
+
+    public Post(String description, String postImageUrl, String postid, String publisher, User user) {
+        this.description = description;
+        this.postImageUrl = postImageUrl;
+        this.postid = postid;
+        this.publisher = publisher;
+        this.user = user;
+    }
 
     public Post() {
     }
 
-    public Post(String description, List<String> postImageUrls, String postid, String publisher) {
-        this.description = description;
-        this.postImageUrls = postImageUrls;
-        this.postid = postid;
-        this.publisher = publisher;
+    public String getDatecreate() {
+        return datecreate;
     }
 
-    public List<String> getPostImageUrls() {
-        return postImageUrls;
-    }
-
-    public void setPostImageUrls(List<String> postImageUrls) {
-        this.postImageUrls = postImageUrls;
+    public void setDatecreate(String datecreate) {
+        this.datecreate = datecreate;
     }
 
     public String getDescription() {
@@ -34,7 +44,13 @@ public class Post {
         this.description = description;
     }
 
+    public String getPostImageUrl() {
+        return postImageUrl;
+    }
 
+    public void setPostImageUrl(String postImageUrl) {
+        this.postImageUrl = postImageUrl;
+    }
 
     public String getPostid() {
         return postid;
@@ -50,5 +66,13 @@ public class Post {
 
     public void setPublisher(String publisher) {
         this.publisher = publisher;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

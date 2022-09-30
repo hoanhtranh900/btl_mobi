@@ -15,6 +15,7 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -37,11 +38,17 @@ public interface ApiInterface {
     );
 
     @Multipart
-    @POST("/files/uploadFile")
+    @POST("files/uploadFile")
     Call<ResponseBody> postImage(
-            @Part("file") MultipartBody.Part file,
+            @Part MultipartBody.Part file,
             @Part("objectType") Long objectType
     );
+    //update objectType for image
+    @PUT("files/upload")
+    Call<ResponseBody> updateImage(@Body RequestBody body);
+
+    @POST("api/v1/post/create")
+    Call<ResponseBody> postPost(@Body RequestBody body);
 
     //đăng ký
     @POST("public/v1/sso/register")
@@ -49,6 +56,14 @@ public interface ApiInterface {
 
     @GET("api/v1/post/getPage")
     Call<ResponseBody> getFollower(@Query("search") String search);
+
+    //like post
+    @POST("api/v1/post/like/{id}")
+    Call<ResponseBody> postLike(@Path("id") Long id);
+
+    //check like
+    @GET("api/v1/post/like/{id}")
+    Call<ResponseBody> getLike(@Path("id") Long id);
 
 
     @GET("api/auth/me")

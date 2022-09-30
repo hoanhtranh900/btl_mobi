@@ -25,9 +25,11 @@ import com.mrash.instagramclone.Adapter.PostAdapter;
 import com.mrash.instagramclone.LoginActivity;
 import com.mrash.instagramclone.MainActivity;
 import com.mrash.instagramclone.Model.Post;
+import com.mrash.instagramclone.Model.User;
 import com.mrash.instagramclone.R;
 import com.mrash.instagramclone.network.ApiClient;
 import com.mrash.instagramclone.network.ApiInterface;
+import com.mrash.instagramclone.utils.H;
 import com.mrash.instagramclone.utils.SharedPrefManager;
 
 import org.json.JSONArray;
@@ -101,16 +103,11 @@ public class HomeFragment extends Fragment {
                         sort: 'modifiedDate,desc',
                     }
         * */
-        Map<String, Object> paramObject = new ArrayMap<>();
-        paramObject.put("page", page);
-        paramObject.put("size", size);
-        paramObject.put("sort", "modifiedDate,desc");
-
         Map<String, Object> searchParam = new ArrayMap<>();
         searchParam.put("fullName", "");
 
 
-        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
+        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,asc");
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -125,16 +122,24 @@ public class HomeFragment extends Fragment {
                             for (int i = 0; i < content.length(); i++) {
                                 JSONObject post = content.getJSONObject(i);
                                 Post post1 = new Post();
+
                                 post1.setPostid(post.getString("id"));
-                                JSONArray images = post.getJSONArray("postImageUrls");
-                                List<String> imageList = new ArrayList<>();
-                                for (int j = 0; j < images.length(); j++) {
-                                    imageList.add(images.getString(j));
+                                if(H.isTrue(post.getString("postImageUrl"))){
+                                    post1.setPostImageUrl(post.getString("postImageUrl"));
                                 }
-                                post1.setPostImageUrls(imageList);
                                 post1.setDescription(post.getString("description"));
                                 post1.setPublisher(post.getString("creatorName"));
+                                post1.setDatecreate(post.getString("creteTimeStr"));
+                                post1.setTotalLike(post.getLong("totalLike"));
 //                                post1.setPublisherId(post.getString("creatorId"));
+                                User user = new User();
+                                //get user from creator in data
+                                JSONObject creator = post.getJSONObject("creator");
+                                //convert jsonObj to user
+                                user = (User) H.convertJsonToObject(creator, User.class);
+                                post1.setUser(user);
+
+
                                 postList.add(post1);
                             }
 
@@ -157,12 +162,6 @@ public class HomeFragment extends Fragment {
 
     }
 
-    String encodeURIComponent(Map<String, Object> map) {
-        //input: {"fullName":""}
-        //output: %7B%22fullName%22%3A%22%22%7D
-
-        return Uri.encode((new JSONObject(map)).toString()) ;
-    }
     /**
      * Checking and Reading Follow people post and set it on Home Screen using post Adapter
      */

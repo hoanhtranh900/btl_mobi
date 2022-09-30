@@ -58,9 +58,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
         User user = mUsers.get(position);
         holder.follow.setVisibility(View.VISIBLE);
         holder.userName.setText(user.getUsername());
-        holder.fullName.setText(user.getName());
+        holder.fullName.setText(user.getFullName());
         //Load pic and set as profile image
-        Picasso.get().load(user.getImageurl()).placeholder(R.mipmap.ic_launcher).into(holder.imageProfile);
+        Picasso.get().load(user.getAvatar()).placeholder(R.mipmap.ic_launcher).into(holder.imageProfile);
 
         if(user.getId().equals(firebaseUser.getUid()))
         {
@@ -75,20 +75,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
                 if(holder.follow.getText().toString().equals("follow"))
                 {
                     Log.d(TAG, "onClick: text is Follow");
-                    FirebaseDatabase.getInstance().getReference().child("Follow").child((firebaseUser.getUid()))
-                            .child("following").child(user.getId()).setValue(true);
-
-                    FirebaseDatabase.getInstance().getReference().child("Follow")
-                            .child(user.getId()).child("followers").child(firebaseUser.getUid()).setValue(true);
+//                    FirebaseDatabase.getInstance().getReference().child("Follow").child((firebaseUser.getUid()))
+//                            .child("following").child(user.getId()).setValue(true);
+//
+//                    FirebaseDatabase.getInstance().getReference().child("Follow")
+//                            .child(user.getId()).child("followers").child(firebaseUser.getUid()).setValue(true);
                 }
                 else
                 {
                     Log.d(TAG, "onClick: text is following");
-                    FirebaseDatabase.getInstance().getReference().child("Follow").child((firebaseUser.getUid()))
-                            .child("following").child(user.getId()).removeValue();
-
-                    FirebaseDatabase.getInstance().getReference().child("Follow")
-                            .child(user.getId()).child("followers").child(firebaseUser.getUid()).removeValue();
+//                    FirebaseDatabase.getInstance().getReference().child("Follow").child((firebaseUser.getUid()))
+//                            .child("following").child(user.getId()).removeValue();
+//
+//                    FirebaseDatabase.getInstance().getReference().child("Follow")
+//                            .child(user.getId()).child("followers").child(firebaseUser.getUid()).removeValue();
                 }
             }
         });
@@ -103,25 +103,25 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder>{
      * @param follow
      */
 
-    private void isFollowed(String id, Button follow) {
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid())
-                .child("following");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull  DataSnapshot snapshot) {
-                if(snapshot.child(id).exists())
-                {
-                    follow.setText("following");
-                }
-                else
-                    follow.setText("follow");
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    private void isFollowed(Long id, Button follow) {
+//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid())
+//                .child("following");
+//        reference.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull  DataSnapshot snapshot) {
+//                if(snapshot.child(id).exists())
+//                {
+//                    follow.setText("following");
+//                }
+//                else
+//                    follow.setText("follow");
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
     }
 
     @Override
