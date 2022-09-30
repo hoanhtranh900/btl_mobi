@@ -23,8 +23,8 @@ public class ApiClient {
      * bằng cách truyền vào trong hàm createService().
      * */
 
-    private static final String url = "http://192.168.0.104:8023/ig-clone/";
-//    private static final String url = "http://sangnk.xyz/ig-clone/";
+//    private static final String url = "http://10.20.67.238:8023/ig-clone/";
+    private static final String url = "http://sangnk.xyz/ig-clone/";
 
     //    private static ApiInterface REST_CLIENT;
 //
