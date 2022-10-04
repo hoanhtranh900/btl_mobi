@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/instagram-clone/instagram-clone/app/src/main/res/layout/activity_post.xml" value="0.1" />
+        <entry key="..\:/instagram-clone/instagram-clone/app/src/main/res/layout/fragment_chat.xml" value="0.536" />
+        <entry key="..\:/instagram-clone/instagram-clone/app/src/main/res/layout/fragment_home.xml" value="0.264" />
+        <entry key="..\:/instagram-clone/instagram-clone/app/src/main/res/layout/post_item.xml" value="0.15260416666666668" />
+        <entry key="..\:/instagram-clone/instagram-clone/app/src/main/res/layout/tag_item.xml" value="0.15260416666666668" />
       </map>
     </option>
   </component>
