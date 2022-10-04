@@ -33,7 +33,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 
-public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
+public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
     private static final String TAG = "PostAdapter";
 
     private Context mContext;
@@ -49,7 +49,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.post_item,parent,false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.post_item, parent, false);
 
         return new PostAdapter.ViewHolder(view);
     }
@@ -62,12 +62,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         // get post from post array on the base of position
         Post post = mPosts.get(position);
         //picasso is used to process/load image
-        if(H.isTrue(post.getPostImageUrl())) {
+        if (H.isTrue(post.getPostImageUrl())) {
             //rezise image max width of device
             Picasso.get().load(post.getPostImageUrl()).into(holder.postImage);
 
-        }
-        else {
+        } else {
             //hide image view if there is no image
             holder.postImage.setVisibility(View.GONE);
         }
@@ -76,14 +75,12 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         holder.fullName.setText(post.getUser().getFullName());
         holder.auther.setText(post.getUser().getUsername());
         holder.datecreate.setText(post.getDatecreate());
-        holder.noOfLikes.setText(post.getTotalLike()+" Likes");
-        if(H.isTrue(post.getUser().getAvatar())) {
+        holder.noOfLikes.setText(post.getTotalLike() + " Likes");
+        if (H.isTrue(post.getUser().getAvatar())) {
             Picasso.get().load(post.getUser().getAvatar()).into(holder.imgProfile);
-        }
-        else {
+        } else {
             holder.imgProfile.setImageResource(R.drawable.ic_person);
         }
-
 
 
         //getting data of post
@@ -131,7 +128,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
                 response.enqueue(new retrofit2.Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                        if(response.isSuccessful()) {
+                        if (response.isSuccessful()) {
                             Log.d(TAG, "onResponse: Post Liked");
                             JSONObject jsonObject1 = null;
                             try {
@@ -139,13 +136,21 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
                                 if (jsonObject1.getString("code").equals("200")) {
                                     JSONObject data = jsonObject1.getJSONObject("data");
                                     Long isDeleted = data.getLong("isDelete");
-                                    if(isDeleted == 1L ) {
+                                    if (isDeleted == 1L) {
                                         //set like icon
                                         holder.like.setImageResource(R.drawable.ic_like);
-                                    }
-                                    else {
+                                        //set total like - 1 if > 0
+                                        if (post.getTotalLike() > 0) {
+                                            holder.noOfLikes.setText(post.getTotalLike() - 1 + " Likes");
+                                        } else {
+                                            holder.noOfLikes.setText("0 Likes");
+                                        }
+                                    } else {
                                         //set unlike icon
                                         holder.like.setImageResource(R.drawable.ic_liked);
+                                        //set total like + 1
+                                        holder.noOfLikes.setText(post.getTotalLike() + 1 + " Likes");
+
                                     }
                                 }
                             } catch (Exception e) {
@@ -165,60 +170,47 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         });
 
 
-
         //when user click on postImage of anyPost,open that post and replace that main Activity Container Layout
         // with post-detail fragment to show post
         holder.postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit().putString("postid",post.getPostid())
+                mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit().putString("postid", post.getPostid())
                         .apply();
 
-                ((FragmentActivity)mContext).getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container,new PostDetailFragment()).commit();
+                ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new PostDetailFragment()).commit();
             }
         });
 
     }//onbind end
 
 
-
     /**
      * Check if the post is liked or not already
+     *
      * @param poitId
      * @param imageView
      */
 
     //if post is already liked by current user then clicking on liked button will unlike it and vice versa...
-    private void isLiked(String poitId,ImageView imageView)
-    {
+    private void isLiked(String poitId, ImageView imageView) {
         Log.d(TAG, "isLiked: Checking if post is liked or not");
         ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
         Call<ResponseBody> response = apiInterface.getLike(Long.valueOf(poitId));
         response.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
                     Log.d(TAG, "onResponse: Post Liked");
                     JSONObject jsonObject1 = null;
                     try {
                         jsonObject1 = new JSONObject(response.body().string());
                         if (jsonObject1.getString("code").equals("200")) {
-//                            JSONObject data = jsonObject1.getJSONObject("data");
-//                            Long isLiked = data.getLong("isLiked");
-//                            if(isLiked == 1L ) {
-//                                //set like icon
-//                                imageView.setImageResource(R.drawable.ic_liked);
-//                            }
-//                            else {
-//                                //set unlike icon
-//                                imageView.setImageResource(R.drawable.ic_like);
-//                            }
-                            //check if have field data
-                            if(jsonObject1.has("data")) {
+
+                            if (H.isTrue(jsonObject1.get("data").toString())) {
                                 imageView.setImageResource(R.drawable.ic_liked);
-                            }
-                            else {
+                            } else {
                                 imageView.setImageResource(R.drawable.ic_like);
                             }
                         }
@@ -241,8 +233,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder>{
         return mPosts.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder
-    {
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView imgProfile;
         public ImageView postImage;

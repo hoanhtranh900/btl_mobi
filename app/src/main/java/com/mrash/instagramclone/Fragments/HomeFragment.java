@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +56,7 @@ public class HomeFragment extends Fragment {
     private int page = 0;
     private int size = 10;
     private ApiInterface apiInterface;
+    private ImageView inbox;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,15 +69,13 @@ public class HomeFragment extends Fragment {
         postList = new ArrayList<>();
         //initializing following List - >will add to this if person has follow someone
         followingList = new ArrayList<>();
-
+        inbox = view.findViewById(R.id.inbox);
         recyclerViewPosts = view.findViewById(R.id.recycler_view_posts);
 
         recyclerViewPosts.setHasFixedSize(true);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         // new post at top
-        linearLayoutManager.setStackFromEnd(true); //fill post from bottom on screen
-        linearLayoutManager.setReverseLayout(true); //
 
         //setting linear layout of post on recycler view
         recyclerViewPosts.setLayoutManager(linearLayoutManager);
@@ -87,7 +87,18 @@ public class HomeFragment extends Fragment {
 
         //this will check for those following peoples
         getPost();
+        moveToInbox();
         return view;
+    }
+
+    private void moveToInbox() {
+        inbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //move to fragment inbox
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InboxFragment()).addToBackStack(null).commit();
+            }
+        });
     }
 
     /**
