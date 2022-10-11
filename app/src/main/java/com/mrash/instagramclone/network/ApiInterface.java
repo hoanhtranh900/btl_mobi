@@ -37,6 +37,23 @@ public interface ApiInterface {
             @Query("sort") String sort
     );
 
+    @GET("api/v1/system/user/getPage")
+    Call<ResponseBody> getListUser(
+            @Query("search") String search,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sort") String sort
+    );
+
+    @GET("messages/{senderId}/{recipientId}")
+    Call<ResponseBody> getListMessage(
+            @Path("senderId") Long senderId,
+            @Path("recipientId") Long recipientId
+    );
+
+    @GET("api/v1/system/user/getListChatRecent")
+    Call<ResponseBody> getListChatRecent();
+
     @Multipart
     @POST("files/uploadFile")
     Call<ResponseBody> postImage(

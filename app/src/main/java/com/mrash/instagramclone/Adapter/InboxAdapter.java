@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.mrash.instagramclone.Model.Inbox;
 import com.mrash.instagramclone.Model.Post;
+import com.mrash.instagramclone.Model.User;
 import com.mrash.instagramclone.R;
 import com.mrash.instagramclone.utils.H;
 import com.squareup.picasso.Picasso;
@@ -23,9 +24,9 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
     private static final String TAG = "InboxAdapter";
 
     private Context mContext;
-    private List<Inbox> mInbox;
+    private List<User> mInbox;
 
-    public InboxAdapter(Context mContext, List<Inbox> mInbox) {
+    public InboxAdapter(Context mContext, List<User> mInbox) {
         this.mContext = mContext;
         this.mInbox = mInbox;
     }
@@ -39,10 +40,8 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Inbox inbox = mInbox.get(position);
-        holder.fullName.setText(inbox.getFullname());
-        holder.content.setText(inbox.getLastMessage());
-        holder.datecreate.setText(inbox.getLastMessageTime());
+        User inbox = mInbox.get(position);
+        holder.fullName.setText(inbox.getFullName());
         if(H.isTrue(inbox.getAvatar())) {
             Picasso.get().load(inbox.getAvatar()).into(holder.imgProfile);
         }
@@ -57,7 +56,6 @@ public class InboxAdapter extends RecyclerView.Adapter<InboxAdapter.ViewHolder> 
 
         public ImageView imgProfile;
         public TextView fullName;
-        public TextView numOfUnreadMessages;
         public TextView datecreate;
         public TextView content;
 

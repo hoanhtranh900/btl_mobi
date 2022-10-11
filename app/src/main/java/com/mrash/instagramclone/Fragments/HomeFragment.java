@@ -118,7 +118,7 @@ public class HomeFragment extends Fragment {
         searchParam.put("fullName", "");
 
 
-        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,asc");
+        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

@@ -1,13 +1,12 @@
 package com.mrash.instagramclone.Fragments;
 
 import android.os.Bundle;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mrash.instagramclone.Adapter.InboxAdapter;
+import com.mrash.instagramclone.Adapter.SearchUserAdapter;
 import com.mrash.instagramclone.Model.Inbox;
 import com.mrash.instagramclone.Model.Post;
 import com.mrash.instagramclone.Model.User;
@@ -24,65 +24,73 @@ import com.mrash.instagramclone.R;
 import com.mrash.instagramclone.network.ApiClient;
 import com.mrash.instagramclone.network.ApiInterface;
 import com.mrash.instagramclone.utils.H;
+import com.mrash.instagramclone.utils.SharedPrefManager;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 
-public class InboxFragment extends Fragment {
-    private static final String TAG = "InboxFragment";
+public class SearchUserFragment extends Fragment {
+    private static final String TAG = "SearchUserFragment";
     private RecyclerView recyclerViewInbox;
     private List<User> userList;
     private ApiInterface apiInterface;
-    private InboxAdapter inboxAdapter;
+    private SearchUserAdapter searchUserAdapter;
     private ImageView inbox_demo_back;
-    private TextView search_user;
+    private int page = 0;
+    private int size = 1000;
+    private SharedPrefManager sharedPrefManager;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: Started");
-        View view = inflater.inflate(R.layout.fragment_inbox, container, false);
-        recyclerViewInbox = view.findViewById(R.id.recycler_view_inbox);
+        View view = inflater.inflate(R.layout.fragment_search_user_to_chat, container, false);
+        recyclerViewInbox = view.findViewById(R.id.recycler_list_user);
         recyclerViewInbox.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-
+        sharedPrefManager = new SharedPrefManager(getContext());
         userList = new ArrayList<>();
         recyclerViewInbox.setLayoutManager(linearLayoutManager);
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
         inbox_demo_back = view.findViewById(R.id.inbox_demo_back);
-        search_user = view.findViewById(R.id.search_input_text_move_to_search_user);
-        inboxAdapter = new InboxAdapter(getContext(), userList);
-        recyclerViewInbox.setAdapter(inboxAdapter);
+        searchUserAdapter = new SearchUserAdapter(getContext(), userList);
+        recyclerViewInbox.setAdapter(searchUserAdapter);
 
-        getListInbox();
-        tap();
+        getListUser();
+        backTap();
         return view;
     }
 
-    private void tap() {
+    private void backTap() {
         inbox_demo_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getActivity().onBackPressed();
             }
         });
-        search_user.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchUserFragment()).addToBackStack(null).commit();
-            }
-        });
     }
 
-    private void getListInbox() {
-//        apiInterface.getListChatRecent()
+    private void getListUser() {
+        Log.d(TAG, "getListPost");
+        /*
+        * params: {
+                        search: JSON.stringify(apiParam),
+                        page: body.page || 0,
+                        size: body.size || 10,
+                        sort: 'modifiedDate,desc',
+                    }
+        * */
+        Map<String, Object> searchParam = new ArrayMap<>();
+        searchParam.put("fullName", "");
 
-        Call<ResponseBody> call = apiInterface.getListChatRecent();
+
+        Call<ResponseBody> call = apiInterface.getListUser((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -91,34 +99,41 @@ public class InboxFragment extends Fragment {
                     try {
                         JSONObject jsonObject = new JSONObject(response.body().string());
                         if (jsonObject.getString("code").equals("200")) {
-//                            JSONObject data = jsonObject.getJSONObject("data");
+                            JSONObject data = jsonObject.getJSONObject("data");
                             //get list from content
-                            JSONArray content = jsonObject.getJSONArray("data");
+                            JSONArray content = data.getJSONArray("content");
                             for (int i = 0; i < content.length(); i++) {
-                                JSONObject object = content.getJSONObject(i);
-                                User user = new User();
-                                user.setId(object.getLong("id"));
-                                user.setUsername(object.getString("username"));
-                                user.setFullName(object.getString("fullName"));
-                                user.setAvatar(object.getString("avatar"));
+                                JSONObject user = content.getJSONObject(i);
+                                User user1 = new User();
 
-                                userList.add(user);
+                                if(H.isTrue(user.getString("avatar"))){
+                                    user1.setAvatar(user.getString("avatar"));
+                                }
+                                user1.setUsername(user.getString("username"));
+                                user1.setFullName(user.getString("fullName"));
+                                user1.setId(user.getLong("id"));
+                                user1.setAddress(user.getString("address"));
+                                if(user1.getId() != sharedPrefManager.getSPUserId()) {
+                                    userList.add(user1);
+                                }
                             }
 
                         } else {
                             Toast.makeText(getContext(), "Load Data faild", Toast.LENGTH_SHORT).show();
                         }
-                        inboxAdapter.notifyDataSetChanged();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
 
                 }
+                searchUserAdapter.notifyDataSetChanged();
             }
+
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getMessage());
             }
         });
+
     }
 }

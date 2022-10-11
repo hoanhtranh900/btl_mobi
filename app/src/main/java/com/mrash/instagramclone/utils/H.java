@@ -53,4 +53,9 @@ public class H {
     public static int getScreenWidth() {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
+
+    //formatDateTime
+    public static String formatDateTime(Date date) {
+        return new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(date);
+    }
 }

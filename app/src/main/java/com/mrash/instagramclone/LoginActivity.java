@@ -131,6 +131,8 @@ public class LoginActivity extends AppCompatActivity {
                             String accessToken = accessTokenInfo.getString("accessToken");
                             sharedPrefManager.saveSPString(SharedPrefManager.SP_TOKEN, accessToken);
                             sharedPrefManager.saveSPBoolean(SharedPrefManager.SP_LOGIN_STATUS, true);
+                            sharedPrefManager.saveSPLong(SharedPrefManager.SP_USER_ID, data.getLong("userId"));
+
                             startActivity(new Intent(LoginActivity.this, MainActivity.class)
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK));
                             finish();

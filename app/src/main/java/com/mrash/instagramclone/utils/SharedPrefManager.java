@@ -11,6 +11,8 @@ public class SharedPrefManager {
 
     public static final String SP_LOGIN_STATUS = "loginStatus";
 
+    public static final String SP_USER_ID = "spUserId";
+
     SharedPreferences sp;
     SharedPreferences.Editor spEditor;
 
@@ -35,6 +37,11 @@ public class SharedPrefManager {
         spEditor.commit();
     }
 
+    public void saveSPLong(String keySP, long value){
+        spEditor.putLong(keySP, value);
+        spEditor.commit();
+    }
+
 
     public String getSPToken(){
         return sp.getString(SP_TOKEN, "");
@@ -42,6 +49,10 @@ public class SharedPrefManager {
 
     public Boolean getSPSudahLogin(){
         return sp.getBoolean(SP_LOGIN_STATUS, false);
+    }
+
+    public Long getSPUserId(){
+        return sp.getLong(SP_USER_ID, 0);
     }
 
 
