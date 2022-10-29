@@ -12,10 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
 
 
-//    private static final String url = "http://192.168.0.101:8023/ig-clone/";
-//    private static final String url = "http://10.20.32.202:8023/ig-clone/";
     private static final String url = "http://192.168.0.104:8023/ig-clone/";
-//    private static final String url = "http://sangnk.xyz/ig-clone/";
 
     private static Retrofit retrofit = null;
 
