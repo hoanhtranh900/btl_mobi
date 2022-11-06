@@ -79,34 +79,6 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         }
 
 
-        //getting data of post
-//        FirebaseDatabase.getInstance().getReference().child("Users").child(post.getPublisher())
-//                .addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                Log.d(TAG, "onDataChange: Getting data from User and setting post");
-//                User user = snapshot.getValue(User.class);
-//
-//                //I have set automatically image url to default so user have to update its pic first time from profile setting
-//                if(user.getImageurl().equals("default"))
-//                {
-//                    holder.imgProfile.setImageResource(R.mipmap.ic_launcher);
-//                }
-//                else
-//                    {
-//                        //load the imageurl
-//                        Picasso.get().load(user.getImageurl()).placeholder(R.mipmap.ic_launcher).into(holder.imgProfile);
-//                    }
-//                holder.username.setText(user.getUsername());
-//                holder.auther.setText(user.getName());
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
 
         // function to check if post is liked or not
         isLiked(post.getPostid(), holder.like);
@@ -114,6 +86,15 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         //if user click on the like button then it will update the post which is liked and
         // add data of user who like it
         //and at the same time if user unlike the post then remove the value from firebase
+
+        holder.imgProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //move to profile fragment
+                mContext.getSharedPreferences("PROFILE", Context.MODE_PRIVATE).edit().putLong("profileid", post.getUser().getId()).apply();
+                ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new PostDetailFragment()).commit();
+            }
+        });
 
 
         holder.like.setOnClickListener(new View.OnClickListener() {

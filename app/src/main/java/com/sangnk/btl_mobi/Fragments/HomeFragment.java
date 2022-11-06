@@ -106,7 +106,7 @@ public class HomeFragment extends Fragment {
         searchParam.put("fullName", "");
 
 
-        Call<ResponseBody> call = apiInterface.getFollowing((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
+        Call<ResponseBody> call = apiInterface.getListPost((new JSONObject(searchParam)).toString(), page, size, "updateTime,desc");
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -165,31 +165,7 @@ public class HomeFragment extends Fragment {
      * Checking and Reading Follow people post and set it on Home Screen using post Adapter
      */
     private void readPosts() {
-//        FirebaseDatabase.getInstance().getReference().child("Posts").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                postList.clear();
-//                for(DataSnapshot dataSnapshot:snapshot.getChildren())
-//                {
-//                    Post post = dataSnapshot.getValue(Post.class);
-//                    for(String id : followingList)
-//                    {
-//                        if(post.getPublisher().equals(id))
-//                        {
-//                            postList.add(post);
-//                        }
-//                    }
-//                }
-//                postAdapter.notifyDataSetChanged();
-//
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
+
     }
 
     //log onresume, onpause, onstart, onstop, ondestroy

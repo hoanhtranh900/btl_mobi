@@ -235,28 +235,7 @@ public class PostActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        //setting HashTag adapter to get hashtag from Description it is built in social View Class
-//        ArrayAdapter<Hashtag> hashtagAdapter = new HashtagArrayAdapter<>(getApplicationContext());
-        // getting hashtag and showing as a suggestion of the samename hashtags
-//        FirebaseDatabase.getInstance().getReference().child("HashTags")
-//                .addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                for(DataSnapshot dataSnapshot:snapshot.getChildren())
-//                {
-//                    hashtagAdapter.add(new Hashtag(dataSnapshot.getKey(),(int)snapshot.getChildrenCount()));
-//
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
 
-//        description.setHashtagAdapter(hashtagAdapter);
 
     }
 

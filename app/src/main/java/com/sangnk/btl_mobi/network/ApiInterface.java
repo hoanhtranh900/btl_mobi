@@ -28,7 +28,7 @@ public interface ApiInterface {
     Call<ResponseBody> getPost(@Query("search") String search);
     //api lấy những người mình đang theo dõi (id: current user)
     @GET("api/v1/post/getPage")
-    Call<ResponseBody> getFollowing(
+    Call<ResponseBody> getListPost(
             @Query("search") String search,
             @Query("page") int page,
             @Query("size") int size,
@@ -81,10 +81,14 @@ public interface ApiInterface {
     Call<ResponseBody> getLike(@Path("id") Long id);
 
 
-    @GET("api/auth/me")
-    Call<User> getUser(@Header("Authorization") String token);
+    @GET("api/v1/system/user/getProfile")
+    Call<ResponseBody> getUser();
 
     @POST("api/auth/refresh")
     Call<UserResponse> refreshToken(@Header("Authorization") String token);
 
+
+    //edit profile
+    @PUT("api/v1/system/user")
+    Call<ResponseBody> editUser(@Body RequestBody body);
 }
