@@ -1,5 +1,6 @@
 package com.sangnk.btl_mobi.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.ArrayMap;
@@ -75,15 +76,17 @@ public class ProfileFragment extends Fragment {
     private SharedPrefManager sharedPrefManager;
 
     private String imageProfileUrl;
-
+    private String userId;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-
+        userId = getContext().getSharedPreferences("PREFS", Context.MODE_PRIVATE)
+                .getString("userId","none");
 
         apiInterface = ApiClient.getClient().create(ApiInterface.class);
+
 
         editProfile = view.findViewById(R.id.edit_profile);
         imageProfile = view.findViewById(R.id.image_profile);
@@ -109,7 +112,6 @@ public class ProfileFragment extends Fragment {
 
         recyclerView.setAdapter(photoAdapter);
 
-        profileId = sharedPrefManager.getSPUserId();
 
         userInfo();
 
@@ -120,14 +122,13 @@ public class ProfileFragment extends Fragment {
         getMyPhotos();
 
         //Setting Edit profile Button text at runtime
-//      if(profileId.equals(fUser.getUid()))
-//      {
-//          editProfile.setText("Edit Profile");
-//      }
-//      else {
-//          //uncomment when future work on follow or following profiles of other users
-//       //   checkFollowingStatus();
-//      }
+      if(Long.parseLong(userId) == (sharedPrefManager.getSPUserId()))
+      {
+          editProfile.setText("Edit Profile");
+      }
+      else {
+          checkFollowingStatus();
+      }
 
         setEditProfile();
 
@@ -144,9 +145,38 @@ public class ProfileFragment extends Fragment {
     }
 
 
-    /**
-     * Edit Profile Button
-     */
+    private void checkFollowingStatus() {
+        Call<ResponseBody> call = apiInterface.checkFollow(Long.valueOf(userId));
+        call.enqueue(new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    JSONObject jsonObject1 = null;
+                    try {
+                        jsonObject1 = new JSONObject(response.body().string());
+                        if (jsonObject1.getString("code").equals("200")) {
+                            Boolean data = jsonObject1.getBoolean("data");
+                            if (data) {
+                                editProfile.setText("Đang theo dõi");
+                            } else
+                                editProfile.setText("Theo dõi");
+
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Log.d(TAG, "onResponse: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+
+            }
+        });
+    }
+
     private void setEditProfile() {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -175,34 +205,9 @@ public class ProfileFragment extends Fragment {
      * Get All photos on the base of current user profile id
      */
     private void getMyPhotos() {
-        //Create Firebase database reference upto Posts then get getting post of that current user
-//        FirebaseDatabase.getInstance().getReference().child("Posts").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                myPhotoList.clear();
-//                for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-//                    Post post = dataSnapshot.getValue(Post.class);
-//                    //post is uploaded by current user then add to list
-//                    if (post.getPublisher().equals(profileId)) {
-//                        myPhotoList.add(post);
-//
-//                    }
-//                }
-//                //this will reverse the list of post like on Instagram showing new post at the top and then so-on..
-//                Collections.reverse(myPhotoList);
-//                photoAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-
-
         Map<String, Object> searchParam = new ArrayMap<>();
         searchParam.put("fullName", "");
-        searchParam.put("id", profileId);
+        searchParam.put("id", Long.parseLong(userId));
         int page = 0;
         int size = 100;
 
@@ -280,9 +285,7 @@ public class ProfileFragment extends Fragment {
      * getting user info then set on profile Screen like username n'd profile pic n'd description...
      */
     private void userInfo() {
-
-
-        Call<ResponseBody> call = apiInterface.getUser();
+        Call<ResponseBody> call = apiInterface.getUser(Long.parseLong(userId));
         call.enqueue(new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

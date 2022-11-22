@@ -1,5 +1,6 @@
 package com.sangnk.btl_mobi;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,6 +15,7 @@ import com.sangnk.btl_mobi.Fragments.HomeFragment;
 import com.sangnk.btl_mobi.Fragments.NotificationFragment;
 import com.sangnk.btl_mobi.Fragments.ProfileFragment;
 import com.sangnk.btl_mobi.Fragments.SearchFragment;
+import com.sangnk.btl_mobi.utils.SharedPrefManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
     private Fragment selectorFragment;
+    private SharedPrefManager sharedPrefManager;
+    private Context mContext;
     List<String> fragments = new ArrayList<String>();
 
     @Override
@@ -32,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        sharedPrefManager = new SharedPrefManager(this);
+        mContext = this;
+
+
         setBottomNavigationView();
         //check if user is logged in move tp home activity
 
@@ -39,11 +47,7 @@ public class MainActivity extends AppCompatActivity {
         setHomeAfterLogin();
     }
 
-    /**
-     * Setup Bottom Navigation View
-     * <p>
-     * set the fragment on th base of their id's
-     */
+
     private void setBottomNavigationView() {
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -80,6 +84,10 @@ public class MainActivity extends AppCompatActivity {
                         if (selectorFragment != null && selectorFragment instanceof ProfileFragment) {
                             return true;
                         }
+                        mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit().putString("userId", String.valueOf(sharedPrefManager.getSPUserId())).apply();
+                        //edit shared preferences
+
+
                         selectorFragment = new ProfileFragment();
                         Log.d(TAG, "onNavigationItemSelected: setting ProfileFragment");
                         break;

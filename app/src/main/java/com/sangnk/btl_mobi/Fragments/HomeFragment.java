@@ -84,7 +84,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //move to fragment inbox
-                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new InboxFragment()).addToBackStack(null).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new SearchUserFragment()).addToBackStack(null).commit();
             }
         });
     }

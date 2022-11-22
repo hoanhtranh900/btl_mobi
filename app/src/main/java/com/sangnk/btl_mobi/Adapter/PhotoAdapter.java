@@ -41,9 +41,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder>{
 
 
         Post post = mPosts.get(position);
-        //load image url of post and set it
-        Picasso.get().load(post.getPostImageUrl()).placeholder(R.mipmap.ic_launcher).into(holder.postImage);
-        //here the same with posts when user clcik on the image it will open that post seperately
+        Picasso.get().load(post.getPostImageUrl()).into(holder.postImage);
         holder.postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

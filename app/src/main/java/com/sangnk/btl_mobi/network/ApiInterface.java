@@ -35,6 +35,14 @@ public interface ApiInterface {
             @Query("sort") String sort
     );
 
+    ///getComment/{id}
+    @GET("api/v1/post/getComment/{id}")
+    Call<ResponseBody> getComment(@Path("id") String id);
+
+    //detail post
+    @GET("api/v1/post/{id}")
+    Call<ResponseBody> getDetailPost(@Path("id") String id);
+
     @GET("api/v1/system/user/getPage")
     Call<ResponseBody> getListUser(
             @Query("search") String search,
@@ -81,8 +89,8 @@ public interface ApiInterface {
     Call<ResponseBody> getLike(@Path("id") Long id);
 
 
-    @GET("api/v1/system/user/getProfile")
-    Call<ResponseBody> getUser();
+    @GET("api/v1/system/user/getProfile/{id}")
+    Call<ResponseBody> getUser(@Path("id") Long id);
 
     @POST("api/auth/refresh")
     Call<UserResponse> refreshToken(@Header("Authorization") String token);
@@ -91,4 +99,16 @@ public interface ApiInterface {
     //edit profile
     @PUT("api/v1/system/user")
     Call<ResponseBody> editUser(@Body RequestBody body);
+
+    //addComment
+    @POST("api/v1/post/addComment/{id}")
+    Call<ResponseBody> postComment(@Path("id") Long id,@Body  String body);
+
+    //check follow
+    @GET("api/v1/follow/checkFollow/{id}")
+    Call<ResponseBody> checkFollow(@Path("id") Long id);
+
+    //follow or unfollow
+    @POST("api/v1/follow/followUser/{id}")
+    Call<ResponseBody> followUser(@Path("id") Long id);
 }

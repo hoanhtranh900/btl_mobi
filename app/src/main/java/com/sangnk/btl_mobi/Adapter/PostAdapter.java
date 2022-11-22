@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
+import com.sangnk.btl_mobi.Fragments.CommentFragment;
 import com.sangnk.btl_mobi.Fragments.PostDetailFragment;
+import com.sangnk.btl_mobi.Fragments.SearchUserFragment;
 import com.sangnk.btl_mobi.Model.Post;
 import com.sangnk.btl_mobi.R;
 import com.sangnk.btl_mobi.network.ApiClient;
@@ -113,12 +115,13 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                                 if (jsonObject1.getString("code").equals("200")) {
                                     JSONObject data = jsonObject1.getJSONObject("data");
                                     Long isDeleted = data.getLong("isDelete");
+                                    Long totalLike = data.getLong("totalLike");
                                     if (isDeleted == 1L) {
                                         //set like icon
                                         holder.like.setImageResource(R.drawable.ic_like);
                                         //set total like - 1 if > 0
                                         if (post.getTotalLike() > 0) {
-                                            holder.noOfLikes.setText(post.getTotalLike() - 1 + " Likes");
+                                            holder.noOfLikes.setText(totalLike + " Likes");
                                         } else {
                                             holder.noOfLikes.setText("0 Likes");
                                         }
@@ -126,7 +129,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
                                         //set unlike icon
                                         holder.like.setImageResource(R.drawable.ic_liked);
                                         //set total like + 1
-                                        holder.noOfLikes.setText(post.getTotalLike() + 1 + " Likes");
+                                        holder.noOfLikes.setText(totalLike + " Likes");
 
                                     }
                                 }
@@ -147,8 +150,7 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         });
 
 
-        //when user click on postImage of anyPost,open that post and replace that main Activity Container Layout
-        // with post-detail fragment to show post
+        //move to detail
         holder.postImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -157,6 +159,20 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
 
                 ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, new PostDetailFragment()).commit();
+            }
+        });
+
+        //move to comment
+        holder.comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mContext.getSharedPreferences("PREFS", Context.MODE_PRIVATE).edit().putString("postid", post.getPostid())
+                        .apply();
+
+                ((FragmentActivity) mContext).getSupportFragmentManager().beginTransaction()
+                        .add(R.id.fragment_container, new CommentFragment()).addToBackStack(null).commit();
+
+
             }
         });
 
