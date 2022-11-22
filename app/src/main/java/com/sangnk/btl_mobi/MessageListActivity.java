@@ -81,7 +81,7 @@ public class MessageListActivity extends AppCompatActivity {
             currentUserId = sharedPrefManager.getSPUserId();
         }
 
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://192.168.0.104:8023/ig-clone/ws");
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://127.0.0.1:8023/ig-clone/ws");
         resetSubscriptions();
         connectStomp();
         sendMessage();
