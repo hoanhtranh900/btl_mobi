@@ -111,4 +111,13 @@ public interface ApiInterface {
     //follow or unfollow
     @POST("api/v1/follow/followUser/{id}")
     Call<ResponseBody> followUser(@Path("id") Long id);
+
+    //get list notification
+    @GET("api/v1/system/user/getNotify")
+    Call<ResponseBody> getNotify(
+            @Query("search") String search,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sort") String sort
+    );
 }
